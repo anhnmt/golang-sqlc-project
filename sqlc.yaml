@@ -3,8 +3,6 @@ sql:
   - engine: "postgresql"
     queries: "query.sql"
     schema: "schema.sql"
-    database:
-      managed: true
     gen:
       go:
         package: "postgresql"
