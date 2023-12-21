@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"reflect"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/anhnmt/golang-sqlc-project/postgresql"
 )
@@ -31,7 +33,7 @@ func run() error {
 	q := dsn.Query()
 	q.Add("sslmode", "disable")
 
-	config, err := pgxpool.ParseConfig(dsn.String())
+	config, err := pgx.ParseConfig(dsn.String())
 	if err != nil {
 		return err
 	}
@@ -39,11 +41,11 @@ func run() error {
 	newCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	pool, err := pgxpool.NewWithConfig(newCtx, config)
+	pool, err := pgx.ConnectConfig(newCtx, config)
 	if err != nil {
 		return err
 	}
-	defer pool.Close()
+	defer pool.Close(ctx)
 
 	err = pool.Ping(newCtx)
 	if err != nil {
@@ -59,23 +61,23 @@ func run() error {
 	}
 	log.Println(authors)
 
-	// // create an author
-	// insertedAuthor, err := queries.CreateAuthor(ctx, postgresql.CreateAuthorParams{
-	//     Name: "Brian Kernighan",
-	//     Bio:  pgtype.Text{String: "Co-author of The C Programming Language and The Go Programming Language", Valid: true},
-	// })
-	// if err != nil {
-	//     return err
-	// }
-	// log.Println(insertedAuthor)
-	//
-	// // get the author we just inserted
-	// fetchedAuthor, err := queries.GetAuthor(ctx, insertedAuthor.ID)
-	// if err != nil {
-	//     return err
-	// }
-	//
-	// // prints true
-	// log.Println(reflect.DeepEqual(insertedAuthor, fetchedAuthor))
+	// create an author
+	insertedAuthor, err := queries.CreateAuthor(ctx, postgresql.CreateAuthorParams{
+		Name: "Brian Kernighan",
+		Bio:  pgtype.Text{String: "Co-author of The C Programming Language and The Go Programming Language", Valid: true},
+	})
+	if err != nil {
+		return err
+	}
+	log.Println(insertedAuthor)
+
+	// get the author we just inserted
+	fetchedAuthor, err := queries.GetAuthor(ctx, insertedAuthor.ID)
+	if err != nil {
+		return err
+	}
+
+	// prints true
+	log.Println(reflect.DeepEqual(insertedAuthor, fetchedAuthor))
 	return nil
 }
