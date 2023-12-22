@@ -21,8 +21,8 @@ RETURNING id, name, bio
 `
 
 type CreateAuthorParams struct {
-	Name string
-	Bio  pgtype.Text
+	Name string      `json:"name"`
+	Bio  pgtype.Text `json:"bio"`
 }
 
 func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Author, error) {
@@ -87,9 +87,9 @@ WHERE id = $1
 `
 
 type UpdateAuthorParams struct {
-	ID   int64
-	Name string
-	Bio  pgtype.Text
+	ID   int64       `json:"id"`
+	Name string      `json:"name"`
+	Bio  pgtype.Text `json:"bio"`
 }
 
 func (q *Queries) UpdateAuthor(ctx context.Context, arg UpdateAuthorParams) error {
