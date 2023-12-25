@@ -1,0 +1,12 @@
+version: '3.8'
+
+#services describe the containers that will start
+services:
+  sqlc:
+    container_name: sqlc
+    image: sqlc/sqlc:latest
+    volumes:
+      - ./:/src
+    working_dir: /src
+    command:
+      - generate
